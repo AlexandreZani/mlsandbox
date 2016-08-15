@@ -135,6 +135,8 @@ sigmoidLayer = SigmoidLayer()
 
 class LogisticCost(object):
     def dcostdy(self, y, y_):
+        epsilon = np.finfo('float64').eps
+        y_ = np.clip(y_, epsilon, 1.0 - epsilon)
         return ((y_ - y) / (y_ * (1-y_))) / y.shape[0]
         
     def compute(self, y, y_):
@@ -158,13 +160,17 @@ def NewNeuralNet(*args):
     return Network(layers, logisticCost)
 
 
-def StochasticGradientDescent(model, X, y, iterations=None, learning_rate=0.1):
+def StochasticGradientDescent(model, X, y, iterations=None, learning_rate=0.1, callback_period=None, callback=None):
   assert X.shape[0] == y.shape[0]
+  if callback_period:
+    assert callback is not None
 
   if not iterations:
     iterations = len(y) * 10
 
-  for i in xrange(iterations):
+  for i in range(iterations):
+    if callback_period and i % callback_period == 0:
+      callback(i)
     sample_i = np.random.randint(X.shape[0])
     x_sample = X[sample_i]
     y_sample = y[sample_i]
