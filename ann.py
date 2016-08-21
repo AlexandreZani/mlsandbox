@@ -87,7 +87,7 @@ class Network(object):
     def __repr__(self):
         return '<Network: (layers=%s, cost_function=%s)>' % (str(self._layers), str(self._cost_function))
 
-# Inputs and outputs are column vectors
+# Inputs and outputs are row vectors
 class LinearLayer(Layer):
     def __init__(self, input_size, output_size):
         # +1 for the bias.
@@ -132,6 +132,23 @@ class SigmoidLayer(Layer):
     def __repr__(self):
         return 'Sigmoid'
 sigmoidLayer = SigmoidLayer()
+
+class SoftmaxLayer(Layer):
+  def __init__(self):
+    self._params = np.array([])
+
+  def dydx(self, x, y):
+    ret = -y.T.dot(y)
+    ret.flat[::ret.shape[0]+1] = y * (1 - y)
+    return ret
+
+  def dcostdx(self, x, y, dcostdy):
+    return dcostdy.dot(self.dydx(x, y))
+
+  def compute(self, x):
+    e = np.exp(x)
+    return e / np.sum(e)
+softmaxLayer = SoftmaxLayer()
 
 class LogisticCost(object):
     def dcostdy(self, y, y_):
