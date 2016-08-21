@@ -165,3 +165,20 @@ class TestTraining(unittest.TestCase):
     ann.StochasticGradientDescent(nn, X, y, iterations=6000, learning_rate=0.5)
     new_cost = nn.compute_cost(X, y)
     self.assertLess(new_cost, original_cost/10)
+
+  def test_train_2_softmax(self):
+    X, y = self.data2()
+
+    np.random.seed(10)
+    layers = [
+        ann.LinearLayer(4, 6),
+        ann.sigmoidLayer,
+        ann.LinearLayer(6, 2),
+        ann.softmaxLayer,
+        ]
+    nn = ann.Network(layers, ann.crossEntropyLoss)
+
+    original_cost = nn.compute_cost(X, y)
+    ann.StochasticGradientDescent(nn, X, y, iterations=2000, learning_rate=0.2)
+    new_cost = nn.compute_cost(X, y)
+    self.assertLess(new_cost, original_cost/10)

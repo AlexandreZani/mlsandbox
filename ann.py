@@ -152,6 +152,7 @@ softmaxLayer = SoftmaxLayer()
 
 class LogisticCost(object):
     def dcostdy(self, y, y_):
+        "y is the actual value, y_ is the predicted value."
         epsilon = np.finfo('float64').eps
         y_ = np.clip(y_, epsilon, 1.0 - epsilon)
         return ((y_ - y) / (y_ * (1-y_))) / y.shape[0]
@@ -167,6 +168,18 @@ class LogisticCost(object):
         return 'LogisticCostFunction'
 logisticCost = LogisticCost()
 
+class CrossEntropyLoss(object):
+  def dcostdy(self, y, y_):
+    "y is the actual value, y_ is the predicted value."
+    epsilon = np.finfo('float64').eps
+    y_ = np.clip(y_, epsilon, 1.0 - epsilon)
+    return y / y_
+
+  def compute(self, y, y_):
+    "y is the actual value, y_ is the predicted value."
+    cost = y * np.log(y_)
+    return np.sum(cost, axis=1)
+crossEntropyLoss = CrossEntropyLoss()
 
 def NewNeuralNet(*args):
     layers = []
